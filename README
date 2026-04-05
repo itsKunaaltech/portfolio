@@ -1,6 +1,6 @@
 # 🚀 My Portfolio — Setup Guide
 
-A clean, minimal dark-mode developer portfolio .
+A clean, minimal dark-mode developer portfolio inspired by min-hyuk.com.
 Built with pure HTML, CSS, and vanilla JavaScript. No frameworks needed.
 
 ---
@@ -14,3 +14,153 @@ my-portfolio/
 ├── script.js      ← Theme toggle, animations, copy email
 └── README.md      ← This guide
 ```
+
+---
+
+## ✏️ STEP 1 — Fill In Your Info
+
+Open `index.html` and replace all the placeholder text with yours.
+Search for these exact strings and swap them out:
+
+| Placeholder           | Replace with                      |
+|-----------------------|-----------------------------------|
+| `YOUR NAME`           | Your actual name                  |
+| `your.email@gmail.com`| Your real email                   |
+| `DD.MM.YYYY`          | Your date of birth (optional)     |
+| `+91 XXXXX XXXXX`     | Your phone (optional)             |
+| `Pune, India`         | Your city                         |
+| `@ Your Company`      | Where you work / study now        |
+| `your.email@gmail.com`| (in footer and mailto links too)  |
+| GitHub / LinkedIn URLs| Your real profile URLs            |
+
+---
+
+## 🖼️ STEP 2 — Add Project Images
+
+In the Projects section, each card has a `.project-img-placeholder` div.
+To add a real screenshot or GIF:
+
+1. Create a folder: `images/`
+2. Put your images in it: `images/project1.png`, etc.
+3. In `index.html`, replace:
+   ```html
+   <div class="project-img-placeholder">
+     <span>PROJECT 01</span>
+   </div>
+   ```
+   with:
+   ```html
+   <img src="images/project1.png" alt="Project Name" />
+   ```
+
+---
+
+## 🔗 STEP 3 — Add Your Project Links
+
+In each project card, update the `href` attributes:
+```html
+<a href="https://yourproject.vercel.app" ...>View Live ↗</a>
+<a href="https://github.com/you/repo" ...>GitHub ↗</a>
+```
+
+---
+
+## 🌐 STEP 4 — Deploy to Vercel (Free, Easiest)
+
+### Option A — Drag & Drop (No Git needed)
+1. Go to https://vercel.com and sign up (free)
+2. Click "Add New Project" → "Deploy without Git"
+3. Drag your entire `my-portfolio/` folder into Vercel
+4. Click Deploy → your site is live in 60 seconds!
+5. You'll get a free URL like `yourname.vercel.app`
+
+### Option B — Via GitHub (Recommended for future updates)
+1. Push your files to a GitHub repo
+2. On Vercel → "Add New Project" → Import from GitHub
+3. Select your repo → Deploy
+4. Every time you push to GitHub, Vercel auto-deploys
+
+---
+
+## 🔗 STEP 5 — Connect Your Custom Domain
+
+### If you bought from GoDaddy / Namecheap / Google Domains:
+
+**On Vercel:**
+1. Go to your project → Settings → Domains
+2. Click "Add Domain"
+3. Type your domain: `yourname.com`
+4. Vercel will show you DNS records to add (usually 2 records)
+
+**On your domain registrar (e.g. GoDaddy):**
+1. Go to DNS Settings for your domain
+2. Add an **A Record**:
+   - Name: `@`
+   - Value: `76.76.21.21` (Vercel's IP)
+3. Add a **CNAME Record**:
+   - Name: `www`
+   - Value: `cname.vercel-dns.com`
+4. Save and wait 5–30 minutes for it to propagate
+
+**That's it!** Vercel handles HTTPS/SSL automatically for free.
+
+---
+
+## 🌍 STEP 6 — Deploy to GitHub Pages (Alternative, also free)
+
+1. Push your folder to a GitHub repo named `yourusername.github.io`
+2. Go to repo Settings → Pages
+3. Source: "Deploy from branch" → `main` → `/root`
+4. Your site is live at `https://yourusername.github.io`
+
+**For custom domain on GitHub Pages:**
+1. In repo Settings → Pages → Custom domain → type `yourname.com`
+2. On your registrar, add:
+   - A Records pointing to GitHub's IPs:
+     ```
+     185.199.108.153
+     185.199.109.153
+     185.199.110.153
+     185.199.111.153
+     ```
+   - CNAME: `www` → `yourusername.github.io`
+
+---
+
+## 🎨 STEP 7 — Customise the Look (Optional)
+
+Open `style.css` and find the `:root` block at the top.
+You can change colours easily:
+
+```css
+:root {
+  --accent: #d4c89a;   /* ← Change this to your accent colour */
+  --bg: #0d0d0d;       /* ← Background */
+  --text: #e8e6e0;     /* ← Main text */
+}
+```
+
+Try accent colour ideas:
+- Blue: `#7ab4d4`
+- Green: `#7ab87a`
+- Pink: `#d47ab4`
+- Orange: `#d4a07a`
+
+---
+
+## ✅ Quick Checklist Before Going Live
+
+- [ ] Name replaced everywhere
+- [ ] Email updated (navbar + contact + footer)
+- [ ] Project links added
+- [ ] Project images added (or placeholders left as-is)
+- [ ] GitHub / LinkedIn URLs updated in footer
+- [ ] Bio in footer updated
+- [ ] "Currently" section updated with your current role
+- [ ] Skills section updated with your actual stack
+- [ ] Experience cards updated
+- [ ] Education cards updated
+
+---
+
+#
