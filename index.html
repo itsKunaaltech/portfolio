@@ -12,9 +12,8 @@
 </head>
 <body>
 
-  <!-- CUSTOM CURSOR -->
-  <div class="cursor-dot" id="cursorDot"></div>
-  <div class="cursor-ring" id="cursorRing"></div>
+  <!-- CUSTOM CURSOR (blend-mode inversion) -->
+  <div class="cursor-blend" id="cursorBlend"></div>
 
   <!-- NOISE GRAIN OVERLAY -->
   <div class="grain-overlay" aria-hidden="true"></div>
@@ -43,34 +42,37 @@
     </audio>
   </button>
 
-  <!-- ══ HANGING BULB THEME SWITCH ══ -->
-  <div class="hanging-bulb" id="hangingBulb" role="button" aria-label="Toggle light/dark theme" tabindex="0">
-    <div class="hb-cord">
-      <div class="hb-cord-line"></div>
-      <div class="hb-cord-bead"></div>
+  <!-- ══ FUTURISTIC FLOOR GRID ══ -->
+  <div class="floor-grid" aria-hidden="true"></div>
+
+  <!-- ══ PULL CORD THEME SWITCH (fixed right side) ══ -->
+  <div class="pull-switch" id="pullSwitch" role="button" aria-label="Toggle light/dark theme" tabindex="0">
+    <div class="ps-icon-wrap">
+      <span class="ps-icon-moon">☽</span>
+      <span class="ps-icon-sun">☀</span>
     </div>
-    <div class="hb-body">
-      <svg class="hb-svg" viewBox="0 0 50 68" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- Outer glow (light mode only) -->
-        <ellipse class="hb-glow-ellipse" cx="25" cy="26" rx="22" ry="22"/>
-        <!-- Glass dome -->
-        <path class="hb-glass"
-          d="M25 5 C13.5 5 5 13.5 5 26 C5 35.5 10 43 15.5 48.5 L34.5 48.5 C40 43 45 35.5 45 26 C45 13.5 36.5 5 25 5 Z"/>
-        <!-- Shine streak -->
-        <path class="hb-shine"
-          d="M14 14 C16 10 20 8 24 7" stroke-width="2" stroke-linecap="round"/>
-        <!-- Filament -->
-        <path class="hb-filament"
-          d="M19 46 L19 37 L22 33 L25 28 L28 33 L31 37 L31 46"
-          stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        <!-- Base rings -->
-        <rect class="hb-base" x="15.5" y="48.5" width="19" height="5" rx="2"/>
-        <rect class="hb-base" x="17.5" y="53.5" width="15" height="4.5" rx="1.5"/>
-        <rect class="hb-base" x="19.5" y="58" width="11" height="4.5" rx="1.5"/>
-      </svg>
-      <div class="hb-glow-outer"></div>
+    <div class="ps-cord-wrap" id="psCordWrap">
+      <div class="ps-cord-line"></div>
+      <div class="ps-handle">
+        <span class="ps-handle-knot"></span>
+      </div>
     </div>
-    <span class="hb-label">theme</span>
+    <span class="ps-hint">pull</span>
+  </div>
+
+  <!-- ══ FIXED SPINNING TEXT BADGE (bottom right) ══ -->
+  <div class="spin-badge-fixed" aria-hidden="true">
+    <svg viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <path id="spinPathFixed" d="M 90 90 m -72 0 a 72 72 0 1 1 144 0 a 72 72 0 1 1 -144 0" fill="none"/>
+      </defs>
+      <text class="spin-text-fixed">
+        <textPath href="#spinPathFixed" startOffset="0%">
+          PYTHON DEVELOPER • PUNE INDIA • AVAILABLE • 2026 •&nbsp;
+        </textPath>
+      </text>
+    </svg>
+    <div class="spin-badge-center-fixed">✦</div>
   </div>
 
   <!-- ══ NAVBAR ══ -->
@@ -92,21 +94,6 @@
 
   <!-- ══ HERO ══ -->
   <section class="hero" id="about">
-
-    <!-- Spinning circular text badge -->
-    <div class="spin-badge" aria-hidden="true">
-      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <path id="spinPath" d="M 100 100 m -78 0 a 78 78 0 1 1 156 0 a 78 78 0 1 1 -156 0" fill="none"/>
-        </defs>
-        <text class="spin-text">
-          <textPath href="#spinPath" startOffset="0%">
-            PYTHON DEVELOPER • PUNE INDIA • AVAILABLE FOR WORK • 2026 •&nbsp;
-          </textPath>
-        </text>
-      </svg>
-      <div class="spin-badge-center">✦</div>
-    </div>
 
     <div class="hero-tag available">
       <span class="dot"></span> Available for work
