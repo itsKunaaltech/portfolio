@@ -1,4 +1,3 @@
-
 /* ═══════════════════════════════════════════════
    script.js  —  portfolio interactive features
 ═══════════════════════════════════════════════ */
@@ -17,99 +16,82 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 1000);
 
-// ── 2. HANGING BULB THEME SWITCH ─────────────────────────────
+// ── 2. PULL CORD THEME SWITCH ────────────────────────────────
 const html = document.documentElement;
-const hangingBulb = document.getElementById('hangingBulb');
+const pullSwitch  = document.getElementById('pullSwitch');
+const psCordWrap  = document.getElementById('psCordWrap');
 
-// Apply saved theme
 const savedTheme = localStorage.getItem('theme') || 'dark';
 html.setAttribute('data-theme', savedTheme);
 
-function triggerBulbSwing() {
-  hangingBulb.classList.remove('swinging');
-  void hangingBulb.offsetWidth; // reflow to restart animation
-  hangingBulb.classList.add('swinging');
-  hangingBulb.addEventListener('animationend', () => {
-    hangingBulb.classList.remove('swinging');
-  }, { once: true });
+function triggerPull() {
+  psCordWrap.classList.remove('pulling');
+  void psCordWrap.offsetWidth;
+  psCordWrap.classList.add('pulling');
+  psCordWrap.addEventListener('animationend', () => psCordWrap.classList.remove('pulling'), { once: true });
 }
 
-hangingBulb.addEventListener('click', () => {
-  const current = html.getAttribute('data-theme');
-  const next = current === 'dark' ? 'light' : 'dark';
+pullSwitch.addEventListener('click', () => {
+  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
   html.setAttribute('data-theme', next);
   localStorage.setItem('theme', next);
-  triggerBulbSwing();
+  triggerPull();
 });
 
-hangingBulb.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' || e.key === ' ') {
-    e.preventDefault();
-    hangingBulb.click();
-  }
+pullSwitch.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pullSwitch.click(); }
 });
 
-// ── 3. CUSTOM CURSOR ──────────────────────────────────────────
-const cursorDot  = document.getElementById('cursorDot');
-const cursorRing = document.getElementById('cursorRing');
+// ── 3. BLEND-MODE CURSOR ─────────────────────────────────────
+const cursorBlend = document.getElementById('cursorBlend');
 
-let mouseX = -100, mouseY = -100;
-let ringX  = -100, ringY  = -100;
-let rafId;
-
-// Dot follows cursor instantly
 document.addEventListener('mousemove', (e) => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-  if (cursorDot) {
-    cursorDot.style.left = mouseX + 'px';
-    cursorDot.style.top  = mouseY + 'px';
-  }
+  if (!cursorBlend) return;
+  cursorBlend.style.left = e.clientX + 'px';
+  cursorBlend.style.top  = e.clientY + 'px';
 });
 
-// Ring follows with slight lag via lerp
-function lerpCursor() {
-  if (cursorRing) {
-    ringX += (mouseX - ringX) * 0.12;
-    ringY += (mouseY - ringY) * 0.12;
-    cursorRing.style.left = ringX + 'px';
-    cursorRing.style.top  = ringY + 'px';
-  }
-  rafId = requestAnimationFrame(lerpCursor);
-}
-lerpCursor();
-
-// Hover effect on interactive elements
-const interactiveEls = document.querySelectorAll(
-  'a, button, .skill-icon, .exp-card, .project-card, .hanging-bulb, .copy-btn, .cta-btn, .send-btn, .tag'
-);
-
-interactiveEls.forEach(el => {
-  el.addEventListener('mouseenter', () => {
-    if (cursorRing) cursorRing.classList.add('hovering');
-    if (cursorDot) {
-      cursorDot.style.width  = '3px';
-      cursorDot.style.height = '3px';
-    }
-  });
-  el.addEventListener('mouseleave', () => {
-    if (cursorRing) cursorRing.classList.remove('hovering');
-    if (cursorDot) {
-      cursorDot.style.width  = '5px';
-      cursorDot.style.height = '5px';
-    }
-  });
-});
-
-// Hide cursor when leaving window
 document.addEventListener('mouseleave', () => {
-  if (cursorDot)  cursorDot.style.opacity  = '0';
-  if (cursorRing) cursorRing.style.opacity = '0';
+  if (cursorBlend) cursorBlend.style.opacity = '0';
 });
 document.addEventListener('mouseenter', () => {
-  if (cursorDot)  cursorDot.style.opacity  = '1';
-  if (cursorRing) cursorRing.style.opacity = '0.45';
+  if (cursorBlend) cursorBlend.style.opacity = '1';
 });
+
+// Grow on hover, shrink on click/drag
+document.querySelectorAll('a, button, .skill-icon, .exp-card, .project-card, .pull-switch, .copy-btn, .cta-btn, .send-btn, .tag').forEach(el => {
+  el.addEventListener('mouseenter', () => cursorBlend && cursorBlend.classList.add('big'));
+  el.addEventListener('mouseleave', () => cursorBlend && cursorBlend.classList.remove('big'));
+});
+
+document.addEventListener('mousedown', () => cursorBlend && cursorBlend.classList.add('small'));
+document.addEventListener('mouseup',   () => cursorBlend && cursorBlend.classList.remove('small'));
+
+// ── 3b. 3D CARD TILT EFFECT ──────────────────────────────────
+function addTilt(selector, maxTilt = 9, zDepth = 12) {
+  document.querySelectorAll(selector).forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top  + rect.height / 2;
+      const rx = ((e.clientY - cy) / (rect.height / 2)) * -maxTilt;
+      const ry = ((e.clientX - cx) / (rect.width  / 2)) *  maxTilt;
+      card.style.transform = `perspective(700px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(${zDepth}px)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+      card.style.transition = 'transform 0.55s cubic-bezier(0.23,1,0.32,1)';
+      setTimeout(() => card.style.transition = '', 600);
+    });
+    card.addEventListener('mouseenter', () => {
+      card.style.transition = 'transform 0.15s ease, border-color 0.3s, box-shadow 0.35s';
+    });
+  });
+}
+
+addTilt('.project-card', 10, 14);
+addTilt('.exp-card',     6,  8);
+addTilt('.skill-group',  7,  10);
 
 // ── 4. COPY EMAIL ─────────────────────────────────────────────
 function copyEmail() {
