@@ -1,3 +1,4 @@
+
 /* ═══════════════════════════════════════════════
    script.js  —  portfolio interactive features
 ═══════════════════════════════════════════════ */
@@ -16,27 +17,101 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 1000);
 
-// ── 2. PULL TOGGLE (THEME SWITCH) ────────────────────────────
+// ── 2. HANGING BULB THEME SWITCH ─────────────────────────────
 const html = document.documentElement;
-const pullToggle = document.getElementById('pullToggle');
-const pullThumb  = document.getElementById('pullThumb');
+const hangingBulb = document.getElementById('hangingBulb');
 
+// Apply saved theme
 const savedTheme = localStorage.getItem('theme') || 'dark';
 html.setAttribute('data-theme', savedTheme);
 
-pullToggle.addEventListener('click', () => {
+function triggerBulbSwing() {
+  hangingBulb.classList.remove('swinging');
+  void hangingBulb.offsetWidth; // reflow to restart animation
+  hangingBulb.classList.add('swinging');
+  hangingBulb.addEventListener('animationend', () => {
+    hangingBulb.classList.remove('swinging');
+  }, { once: true });
+}
+
+hangingBulb.addEventListener('click', () => {
   const current = html.getAttribute('data-theme');
   const next = current === 'dark' ? 'light' : 'dark';
   html.setAttribute('data-theme', next);
   localStorage.setItem('theme', next);
-
-  pullThumb.classList.remove('pulling');
-  void pullThumb.offsetWidth;
-  pullThumb.classList.add('pulling');
-  pullThumb.addEventListener('animationend', () => pullThumb.classList.remove('pulling'), { once: true });
+  triggerBulbSwing();
 });
 
-// ── 3. COPY EMAIL ─────────────────────────────────────────────
+hangingBulb.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    hangingBulb.click();
+  }
+});
+
+// ── 3. CUSTOM CURSOR ──────────────────────────────────────────
+const cursorDot  = document.getElementById('cursorDot');
+const cursorRing = document.getElementById('cursorRing');
+
+let mouseX = -100, mouseY = -100;
+let ringX  = -100, ringY  = -100;
+let rafId;
+
+// Dot follows cursor instantly
+document.addEventListener('mousemove', (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  if (cursorDot) {
+    cursorDot.style.left = mouseX + 'px';
+    cursorDot.style.top  = mouseY + 'px';
+  }
+});
+
+// Ring follows with slight lag via lerp
+function lerpCursor() {
+  if (cursorRing) {
+    ringX += (mouseX - ringX) * 0.12;
+    ringY += (mouseY - ringY) * 0.12;
+    cursorRing.style.left = ringX + 'px';
+    cursorRing.style.top  = ringY + 'px';
+  }
+  rafId = requestAnimationFrame(lerpCursor);
+}
+lerpCursor();
+
+// Hover effect on interactive elements
+const interactiveEls = document.querySelectorAll(
+  'a, button, .skill-icon, .exp-card, .project-card, .hanging-bulb, .copy-btn, .cta-btn, .send-btn, .tag'
+);
+
+interactiveEls.forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    if (cursorRing) cursorRing.classList.add('hovering');
+    if (cursorDot) {
+      cursorDot.style.width  = '3px';
+      cursorDot.style.height = '3px';
+    }
+  });
+  el.addEventListener('mouseleave', () => {
+    if (cursorRing) cursorRing.classList.remove('hovering');
+    if (cursorDot) {
+      cursorDot.style.width  = '5px';
+      cursorDot.style.height = '5px';
+    }
+  });
+});
+
+// Hide cursor when leaving window
+document.addEventListener('mouseleave', () => {
+  if (cursorDot)  cursorDot.style.opacity  = '0';
+  if (cursorRing) cursorRing.style.opacity = '0';
+});
+document.addEventListener('mouseenter', () => {
+  if (cursorDot)  cursorDot.style.opacity  = '1';
+  if (cursorRing) cursorRing.style.opacity = '0.45';
+});
+
+// ── 4. COPY EMAIL ─────────────────────────────────────────────
 function copyEmail() {
   navigator.clipboard.writeText('dev.itskunal@gmail.com').then(() => {
     const btn = document.getElementById('copyBtn');
@@ -51,7 +126,7 @@ function copyEmail() {
   });
 }
 
-// ── 4. MINIMAL PARTICLE SYSTEM ───────────────────────────────
+// ── 5. MINIMAL PARTICLE SYSTEM ───────────────────────────────
 const canvas = document.getElementById('particleCanvas');
 const ctx = canvas.getContext('2d');
 let W, H, particles = [];
@@ -87,7 +162,6 @@ class Particle {
   }
   draw() {
     const isDark = html.getAttribute('data-theme') === 'dark';
-    // Updated: white particles in dark, dark particles in light
     const color = isDark
       ? `rgba(255,255,255,${this.alpha})`
       : `rgba(0,0,0,${this.alpha})`;
@@ -126,64 +200,32 @@ function animateParticles() {
 }
 animateParticles();
 
-// ── 5. AMBIENT SOUND ─────────────────────────────────────────
-let audioCtx = null;
-let noiseNode = null;
-let gainNode  = null;
-let soundOn   = false;
-
+// ── 6. AMBIENT SOUND ─────────────────────────────────────────
 const soundBtn   = document.getElementById('soundBtn');
 const soundLabel = document.getElementById('soundLabel');
+const bgMusic    = document.getElementById('bgMusic');
 
-function createAmbientSound() {
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  const bufferSize = audioCtx.sampleRate * 3;
-  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-  const data = buffer.getChannelData(0);
-  for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * 0.05;
-
-  noiseNode = audioCtx.createBufferSource();
-  noiseNode.buffer = buffer;
-  noiseNode.loop = true;
-
-  const filter = audioCtx.createBiquadFilter();
-  filter.type = 'lowpass';
-  filter.frequency.value = 400;
-  filter.Q.value = 0.7;
-
-  gainNode = audioCtx.createGain();
-  gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-  gainNode.gain.linearRampToValueAtTime(0.18, audioCtx.currentTime + 1.5);
-
-  noiseNode.connect(filter);
-  filter.connect(gainNode);
-  gainNode.connect(audioCtx.destination);
-  noiseNode.start();
-}
+let soundOn = false;
 
 soundBtn.addEventListener('click', () => {
   if (!soundOn) {
-    if (!audioCtx) createAmbientSound();
-    else {
-      gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
-      gainNode.gain.linearRampToValueAtTime(0.18, audioCtx.currentTime + 1.5);
-    }
+    bgMusic.volume = 0.4;
+    bgMusic.play();
     soundOn = true;
     soundBtn.classList.add('playing');
     soundLabel.textContent = 'on';
   } else {
-    gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
-    gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.5);
+    bgMusic.pause();
     soundOn = false;
     soundBtn.classList.remove('playing');
     soundLabel.textContent = 'sound';
   }
 });
 
-// ── 6. NAVBAR HIDE ON SCROLL ──────────────────────────────────
+// ── 7. NAVBAR HIDE ON SCROLL ──────────────────────────────────
 let lastScroll = 0;
 const navbar = document.querySelector('.navbar');
-navbar.style.transition = 'transform 0.3s ease, background 0.3s';
+navbar.style.transition = 'transform 0.3s ease, background 0.4s';
 
 window.addEventListener('scroll', () => {
   const cur = window.scrollY;
@@ -192,10 +234,13 @@ window.addEventListener('scroll', () => {
   lastScroll = cur;
 }, { passive: true });
 
-// ── 7. SCROLL FADE-IN ANIMATIONS ─────────────────────────────
+// ── 8. SCROLL FADE-IN ANIMATIONS ─────────────────────────────
 const observer = new IntersectionObserver(
   entries => entries.forEach(e => {
-    if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
   }),
   { threshold: 0.1 }
 );
@@ -213,7 +258,7 @@ const observer = new IntersectionObserver(
   });
 });
 
-// ── 8. CONTACT FORM (Web3Forms) ──────────────────────────────
+// ── 9. CONTACT FORM (Web3Forms) ──────────────────────────────
 const contactForm = document.getElementById('contactForm');
 const submitBtn   = document.getElementById('submitBtn');
 const formMsg     = document.getElementById('formMsg');
@@ -263,7 +308,7 @@ contactForm?.addEventListener('submit', async (e) => {
   submitBtn.disabled = false;
 });
 
-// ── 9. PIXEL LUFFY WALKING ANIMATION ─────────────────────────
+// ── 10. PIXEL LUFFY WALKING ANIMATION ────────────────────────
 (function() {
   const lc = document.getElementById('luffyCanvas');
   if (!lc) return;
@@ -271,11 +316,8 @@ contactForm?.addEventListener('submit', async (e) => {
   lc.width  = 120;
   lc.height = 120;
 
-  // Scale factor — each "pixel" = 4 real pixels
   const S = 4;
 
-  // Luffy pixel art frames (16×16 grid each)
-  // 0=transparent, 1=skin, 2=black(outline/hair), 3=red(vest), 4=blue(pants), 5=yellow(hat), 6=hatband(red)
   const palette = {
     0: null,
     1: '#F4C17A',  // skin
@@ -329,12 +371,11 @@ contactForm?.addEventListener('submit', async (e) => {
 
   const frames = [frameA, frameB];
   let frameIdx = 0;
-  let posX = window.innerWidth + 10; // start off right edge
-  const groundY = window.innerHeight - 68; // sit just above bottom edge
+  let posX = window.innerWidth + 10;
   const SPEED = 1.2;
-  const FRAME_INTERVAL = 180; // ms per walk frame
+  const FRAME_INTERVAL = 180;
   let lastFrameSwitch = 0;
-  let direction = -1; // -1 = walking left, 1 = walking right
+  let direction = -1;
   let flipped = false;
 
   function drawFrame(frame, flip) {
@@ -358,40 +399,27 @@ contactForm?.addEventListener('submit', async (e) => {
   }
 
   function luffyLoop(ts) {
-    // Animate walk frame
     if (ts - lastFrameSwitch > FRAME_INTERVAL) {
       frameIdx = (frameIdx + 1) % frames.length;
       lastFrameSwitch = ts;
     }
-
-    // Move
     posX += SPEED * direction;
 
-    // Bounce: if off left edge, flip direction
-    if (posX < -lc.width - 20) {
-      direction = 1;
-      flipped = true;
-    }
-    // If off right edge, flip direction
-    if (posX > window.innerWidth + 20) {
-      direction = -1;
-      flipped = false;
-    }
+    if (posX < -lc.width - 20) { direction = 1; flipped = true; }
+    if (posX > window.innerWidth + 20) { direction = -1; flipped = false; }
 
-    // Position canvas
-    lc.style.left  = posX + 'px';
+    lc.style.left   = posX + 'px';
     lc.style.bottom = '8px';
-    lc.style.top   = 'auto';
+    lc.style.top    = 'auto';
 
     drawFrame(frames[frameIdx], flipped);
     requestAnimationFrame(luffyLoop);
   }
 
-  // Init position: start from right, walk left
-  lc.style.position = 'fixed';
-  lc.style.bottom   = '8px';
-  lc.style.left     = window.innerWidth + 'px';
-  lc.style.zIndex   = '50';
+  lc.style.position       = 'fixed';
+  lc.style.bottom         = '8px';
+  lc.style.left           = window.innerWidth + 'px';
+  lc.style.zIndex         = '50';
   lc.style.imageRendering = 'pixelated';
   lc.style.pointerEvents  = 'none';
 
